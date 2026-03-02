@@ -388,7 +388,7 @@ export async function getFormationQuiz(
       _id: formationId,
       "owners.userId": userId,
     })
-      .select("quiz sections")
+      .select("quiz sections owners")
       .lean();
 
     if (
