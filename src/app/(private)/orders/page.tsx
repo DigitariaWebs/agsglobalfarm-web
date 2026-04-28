@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { getCartItemPrice } from "@/lib/cart-utils";
 
 export default async function OrdersPage() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -62,7 +63,7 @@ export default async function OrdersPage() {
                       </p>
                     </div>
                     <p className="font-medium">
-                      {(item.price * item.quantity).toLocaleString("fr-FR", {
+                      {(getCartItemPrice(item) * item.quantity).toLocaleString("fr-FR", {
                         style: "currency",
                         currency: "XAF",
                       })}

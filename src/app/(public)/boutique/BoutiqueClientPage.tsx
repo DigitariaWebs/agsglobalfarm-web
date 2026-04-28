@@ -3,41 +3,45 @@
 import { useState, useLayoutEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Star, Sprout, Plus } from "lucide-react";
+import { Search, Sprout, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import type { Product } from "@/types";
 
+interface CategoryOption {
+  key: string;
+  label: string;
+}
+
 interface BoutiqueClientPageProps {
   products: Product[];
-  categories: string[];
+  categories: CategoryOption[];
 }
 
 export default function BoutiqueClientPage({
   products,
   categories,
 }: BoutiqueClientPageProps) {
-  const [activeCategory, setActiveCategory] = useState("Tout");
+  const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [backgroundColor, setBackgroundColor] = useState("#faf9f6");
 
-  // Use cart context
   const { addToCart } = useCart();
 
-  // Get the actual background color from the body element
   useLayoutEffect(() => {
     const bodyBg = window.getComputedStyle(document.body).backgroundColor;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setBackgroundColor(bodyBg);
   }, []);
 
-  // Filter products
   const filteredProducts = products.filter((product) => {
     const matchesCategory =
-      activeCategory === "Tout" || product.category === activeCategory;
-    const matchesSearch = product.name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
+      activeCategory === "all" || product.category === activeCategory;
+    const matchesSearch =
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.shortDescription
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -55,7 +59,6 @@ export default function BoutiqueClientPage({
           </svg>
         </div>
 
-        {/* Background Pattern */}
         <div
           className="absolute inset-0 opacity-20"
           style={{
@@ -78,18 +81,16 @@ export default function BoutiqueClientPage({
                 borderColor: "var(--color-secondary-brand)",
               }}
             >
-              La qualité directement de la ferme
+              Intrants agricoles certifiés
             </span>
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-              Notre Boutique Nature
+              Notre Boutique Agricole
             </h1>
             <p className="text-white/90 text-lg max-w-2xl mx-auto mb-10">
-              Découvrez nos produits frais, nos semences de qualité et notre
-              matériel agricole. Commandez en ligne et faites-vous livrer la
-              fraîcheur à domicile.
+              Engrais, semences, produits phytosanitaires et petit matériel
+              pour vos exploitations.
             </p>
 
-            {/* Search Bar */}
             <div className="max-w-xl mx-auto">
               <div
                 className="flex items-center bg-white rounded-lg p-2 border"
@@ -98,20 +99,16 @@ export default function BoutiqueClientPage({
                 <Search className="w-5 h-5 text-gray-400 ml-3" />
                 <input
                   type="text"
-                  placeholder="Rechercher un produit (ex: Tomates, Semences...)"
+                  placeholder="Rechercher un produit (ex: NPK, neem...)"
                   className="w-full px-4 py-2 outline-none text-gray-700 placeholder-gray-400 bg-transparent"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md font-medium transition-colors">
-                  Rechercher
-                </button>
               </div>
             </div>
           </motion.div>
         </div>
 
-        {/* Decorative Wave Bottom */}
         <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none rotate-180">
           <svg
             data-name="Layer 1"
@@ -130,7 +127,6 @@ export default function BoutiqueClientPage({
 
       {/* Category Filter */}
       <section className="py-8 relative">
-        {/* Gradient overlay at the top to blend */}
         <div
           className="absolute top-0 left-0 right-0 h-32 pointer-events-none -mt-1"
           style={{
@@ -142,19 +138,18 @@ export default function BoutiqueClientPage({
             <h2 className="text-2xl font-bold text-gray-900">Nos Produits</h2>
           </div>
 
-          {/* Category Buttons */}
           <div className="flex flex-wrap gap-3">
             {categories.map((category) => (
               <button
-                key={category}
-                onClick={() => setActiveCategory(category)}
+                key={category.key}
+                onClick={() => setActiveCategory(category.key)}
                 className={`px-6 py-2 rounded-full font-medium transition-all ${
-                  activeCategory === category
+                  activeCategory === category.key
                     ? "bg-green-600 text-white shadow-lg"
                     : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
                 }`}
               >
-                {category}
+                {category.label}
               </button>
             ))}
           </div>
@@ -175,63 +170,47 @@ export default function BoutiqueClientPage({
                   transition={{ duration: 0.2, ease: "easeOut" }}
                   className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all overflow-hidden group flex flex-col h-full"
                 >
-                  {/* Product Image */}
                   <div className="relative h-64 bg-green-50 overflow-hidden shrink-0">
                     <Image
-                      src={product.image}
+                      src={product.imageUrl}
                       alt={product.name}
                       fill
                       className="object-cover group-hover:scale-110 transition-transform duration-300"
                     />
-                    {product.isNewProduct && (
-                      <span
-                        className="absolute top-3 left-3 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 shadow-sm"
-                        style={{
-                          backgroundColor: "var(--color-secondary-brand)",
-                        }}
-                      >
-                        Nouveau
+                    {!product.isInStock && (
+                      <span className="absolute top-3 left-3 bg-red-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                        Rupture
                       </span>
                     )}
                   </div>
 
-                  {/* Product Info */}
                   <div className="p-5 flex flex-col flex-1">
-                    {/* Title and Category */}
                     <div className="mb-3">
                       <h3 className="font-bold text-gray-900 text-lg mb-2 line-clamp-2 min-h-12">
-                        {product.name.replace(/biologique/gi, "").trim()}
+                        {product.name}
                       </h3>
                       <span className="inline-block text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
                         {product.category}
                       </span>
                     </div>
 
-                    {/* Description */}
                     <p className="text-sm text-gray-600 mb-3 line-clamp-2 min-h-10">
-                      {product.description}
+                      {product.shortDescription}
                     </p>
 
-                    {/* Rating */}
-                    <div className="flex items-center gap-1 mb-4">
-                      <Star className="w-4 h-4 fill-amber-400 text-amber-400 shrink-0" />
-                      <span className="text-sm font-semibold text-gray-900">
-                        {product.rating}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        ({product.reviews})
-                      </span>
-                    </div>
+                    {product.brand && (
+                      <p className="text-xs text-gray-500 mb-2">
+                        Marque: <span className="font-semibold">{product.brand}</span>
+                      </p>
+                    )}
 
-                    {/* Spacer to push price/button to bottom */}
                     <div className="flex-1" />
 
-                    {/* Price and Add to Cart */}
                     <div className="border-t pt-4 mt-auto">
                       <div className="flex items-end justify-between gap-3 mb-2">
                         <div className="min-w-0">
                           <p className="text-2xl font-bold text-green-600 leading-tight">
-                            {product.price.toLocaleString()} FCFA
+                            {product.priceTTC.toLocaleString()} FCFA
                           </p>
                           <p className="text-xs text-gray-500 mt-0.5">
                             par {product.unit}
@@ -239,7 +218,8 @@ export default function BoutiqueClientPage({
                         </div>
                         <Button
                           onClick={() => addToCart(product)}
-                          className="bg-green-600 hover:bg-green-700 text-white shrink-0"
+                          disabled={!product.isInStock}
+                          className="bg-green-600 hover:bg-green-700 text-white shrink-0 disabled:bg-gray-300"
                           size="sm"
                         >
                           <Plus className="w-4 h-4 mr-1" />

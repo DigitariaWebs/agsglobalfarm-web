@@ -62,14 +62,73 @@ export async function getUserOrders(): Promise<Order[]> {
 
 // Products
 
-export async function getProducts(): Promise<Product[]> {
+export type ShopCategoryFilter =
+  | "engrais"
+  | "phyto"
+  | "semence"
+  | "petit_materiel";
+
+export type ProductSort = "none" | "price_asc" | "price_desc";
+
+export interface ProductsQuery {
+  category?: ShopCategoryFilter;
+  q?: string;
+  sort?: ProductSort;
+  limit?: number;
+  offset?: number;
+}
+
+export async function getProducts(
+  params: ProductsQuery = {},
+): Promise<{ products: Product[]; total: number }> {
   try {
     await connectToDatabase();
-    const products = await ProductModel.find({});
-    return products.map((product: IProduct) => product.toObject() as Product);
+    const { category, q, sort = "none", limit = 100, offset = 0 } = params;
+
+    const filter: Record<string, unknown> = {};
+    if (category) filter.category = category;
+    if (q && q.trim()) {
+      const regex = new RegExp(q.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+      filter.$or = [
+        { name: regex },
+        { shortDescription: regex },
+        { longDescription: regex },
+        { brand: regex },
+      ];
+    }
+
+    let sortObj: Record<string, 1 | -1> = { createdAt: -1 };
+    if (sort === "price_asc") sortObj = { priceTTC: 1 };
+    else if (sort === "price_desc") sortObj = { priceTTC: -1 };
+
+    const total = await ProductModel.countDocuments(filter);
+    const products = await ProductModel.find(filter)
+      .sort(sortObj)
+      .skip(offset)
+      .limit(limit)
+      .lean();
+
+    return {
+      products: products.map((p) => ({
+        ...(p as unknown as Product),
+      })),
+      total,
+    };
   } catch (error) {
     console.error("Failed to fetch products", error);
-    return [];
+    return { products: [], total: 0 };
+  }
+}
+
+export async function getProductById(id: string): Promise<Product | null> {
+  try {
+    await connectToDatabase();
+    const product = await ProductModel.findOne({ id }).lean();
+    if (!product) return null;
+    return product as unknown as Product;
+  } catch (error) {
+    console.error("Failed to fetch product", error);
+    return null;
   }
 }
 

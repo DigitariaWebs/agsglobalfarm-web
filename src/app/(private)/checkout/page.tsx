@@ -8,6 +8,11 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
+import {
+  getCartItemId,
+  getCartItemImage,
+  getCartItemPrice,
+} from "@/lib/cart-utils";
 
 export default function CheckoutPage() {
   const { cart, cartTotal } = useCart();
@@ -130,7 +135,7 @@ export default function CheckoutPage() {
               <div className="space-y-4">
                 {cart.map((item) => (
                   <motion.div
-                    key={item.category}
+                    key={getCartItemId(item)}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
@@ -139,7 +144,7 @@ export default function CheckoutPage() {
                     <div className="flex gap-4">
                       <div className="relative w-24 h-24 rounded-lg overflow-hidden bg-green-50 shrink-0 border border-gray-100">
                         <Image
-                          src={item.image}
+                          src={getCartItemImage(item)}
                           alt={"name" in item ? item.name : item.title}
                           fill
                           className="object-cover"
@@ -150,10 +155,10 @@ export default function CheckoutPage() {
                           {"name" in item ? item.name : item.title}
                         </h3>
                         <p className="text-base font-bold text-green-600 mb-3">
-                          {item.price.toLocaleString()} FCFA
+                          {getCartItemPrice(item).toLocaleString()} FCFA
                         </p>
                         <div className="flex items-center justify-between">
-                          {"name" in item && (
+                          {"priceTTC" in item && (
                             <span className="text-sm text-gray-600">
                               Quantité: {item.quantity}
                             </span>
@@ -164,7 +169,9 @@ export default function CheckoutPage() {
                           <p className="text-xs text-gray-500">
                             Sous-total:{" "}
                             <span className="font-bold text-gray-900">
-                              {(item.price * item.quantity).toLocaleString()}{" "}
+                              {(
+                                getCartItemPrice(item) * item.quantity
+                              ).toLocaleString()}{" "}
                               FCFA
                             </span>
                           </p>

@@ -16,6 +16,11 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
+import {
+  getCartItemId,
+  getCartItemImage,
+  getCartItemPrice,
+} from "@/lib/cart-utils";
 
 export default function Cart() {
   const router = useRouter();
@@ -107,7 +112,10 @@ export default function Cart() {
               ) : (
                 <div className="space-y-3">
                   {cart.map((item) => {
-                    const itemId = "name" in item ? item.id : item._id || "";
+                    const itemId = getCartItemId(item);
+                    const itemPrice = getCartItemPrice(item);
+                    const itemImage = getCartItemImage(item);
+                    const isProduct = "priceTTC" in item;
                     const itemKey = item.selectedSessionId
                       ? `${itemId}-${item.selectedSessionId}`
                       : itemId;
@@ -123,7 +131,7 @@ export default function Cart() {
                         <div className="flex gap-4">
                           <div className="relative w-24 h-24 rounded-lg overflow-hidden bg-green-50 shrink-0 border border-gray-100">
                             <Image
-                              src={item.image}
+                              src={itemImage}
                               alt={"name" in item ? item.name : item.title}
                               fill
                               className="object-cover"
@@ -162,15 +170,15 @@ export default function Cart() {
                                 </p>
                               )}
                             <p className="text-base font-bold text-green-600 mb-3">
-                              {item.price.toLocaleString()} FCFA
+                              {itemPrice.toLocaleString()} FCFA
                             </p>
                             <div className="flex items-center justify-between">
                               {/* Quantity Controls - Only for products */}
-                              {"name" in item ? (
+                              {isProduct ? (
                                 <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-1">
                                   <button
                                     onClick={() =>
-                                      updateQuantity(item.id, item.quantity - 1)
+                                      updateQuantity(itemId, item.quantity - 1)
                                     }
                                     className="p-1.5 hover:bg-white rounded-md transition-all duration-200 hover:scale-110 active:scale-95"
                                     aria-label="Diminuer la quantité"
@@ -182,7 +190,7 @@ export default function Cart() {
                                   </span>
                                   <button
                                     onClick={() =>
-                                      updateQuantity(item.id, item.quantity + 1)
+                                      updateQuantity(itemId, item.quantity + 1)
                                     }
                                     className="p-1.5 hover:bg-white rounded-md transition-all duration-200 hover:scale-110 active:scale-95"
                                     aria-label="Augmenter la quantité"
@@ -210,7 +218,7 @@ export default function Cart() {
                                 Sous-total:{" "}
                                 <span className="font-bold text-gray-900">
                                   {(
-                                    item.price * item.quantity
+                                    itemPrice * item.quantity
                                   ).toLocaleString()}{" "}
                                   FCFA
                                 </span>
@@ -235,7 +243,7 @@ export default function Cart() {
                       {cartTotal.toLocaleString()} FCFA
                     </span>
                   </div>
-                  {cart.some((item) => "name" in item) && (
+                  {cart.some((item) => "priceTTC" in item) && (
                     <div className="flex justify-between items-center text-gray-700">
                       <span className="text-sm font-medium">Livraison</span>
                       <span className="text-green-600 font-bold text-base flex items-center gap-1">
@@ -265,7 +273,7 @@ export default function Cart() {
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
                 <div className="mt-4 flex items-center justify-center gap-4 text-xs text-gray-500">
-                  {cart.some((item) => "name" in item) && (
+                  {cart.some((item) => "priceTTC" in item) && (
                     <div className="flex items-center gap-1">
                       <Truck className="w-4 h-4 text-green-600" />
                       <span>Livraison gratuite</span>

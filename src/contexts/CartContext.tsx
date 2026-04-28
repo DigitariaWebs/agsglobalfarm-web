@@ -9,6 +9,7 @@ import React, {
   ReactNode,
 } from "react";
 import type { Product, Formation, CartItem } from "@/types";
+import { getCartItemId, getCartItemPrice } from "@/lib/cart-utils";
 
 type CartContextType = {
   cart: CartItem[];
@@ -40,9 +41,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addToCart = (item: Product | Formation, selectedSessionId?: number) => {
     setCart((prevCart) => {
-      const itemId = "name" in item ? item.id : item._id;
+      const itemId = "priceTTC" in item ? item.id : item._id;
       const existingItem = prevCart.find((cartItem) => {
-        const cartItemId = "name" in cartItem ? cartItem.id : cartItem._id;
+        const cartItemId = getCartItemId(cartItem);
         // For formations with sessions, also check if same session
         if ("title" in item && selectedSessionId) {
           return (
@@ -58,7 +59,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           return prevCart;
         }
         return prevCart.map((cartItem) => {
-          const cartItemId = "name" in cartItem ? cartItem.id : cartItem._id;
+          const cartItemId = getCartItemId(cartItem);
           return cartItemId === itemId
             ? { ...cartItem, quantity: cartItem.quantity + 1 }
             : cartItem;
@@ -74,10 +75,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const removeFromCart = (itemId: number | string) => {
     setCart((prevCart) =>
-      prevCart.filter((item) => {
-        const cartItemId = "name" in item ? item.id : item._id;
-        return cartItemId !== itemId;
-      }),
+      prevCart.filter((item) => getCartItemId(item) !== itemId),
     );
   };
 
@@ -87,12 +85,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
     setCart((prevCart) =>
-      prevCart.map((item) => {
-        const cartItemId = "name" in item ? item.id : item._id;
-        return cartItemId === itemId
+      prevCart.map((item) =>
+        getCartItemId(item) === itemId
           ? { ...item, quantity: newQuantity }
-          : item;
-      }),
+          : item,
+      ),
     );
   };
 
@@ -102,7 +99,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const cartItemCount = cart.reduce((count, item) => count + item.quantity, 0);
   const cartTotal = cart.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + getCartItemPrice(item) * item.quantity,
     0,
   );
 

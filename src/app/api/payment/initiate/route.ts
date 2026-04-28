@@ -5,12 +5,22 @@ interface CartItem {
   name?: string;
   title?: string;
   quantity: number;
-  price: number;
+  price?: number;
+  priceTTC?: number;
   description?: string;
+  shortDescription?: string;
   type?: "online" | "presentiel";
   selectedSessionId?: number;
   _id?: string;
-  id?: number;
+  id?: number | string;
+}
+
+function priceOf(item: CartItem): number {
+  return item.priceTTC ?? item.price ?? 0;
+}
+
+function descriptionOf(item: CartItem): string {
+  return item.shortDescription ?? item.description ?? "";
 }
 
 export async function POST(request: NextRequest) {
@@ -30,19 +40,20 @@ export async function POST(request: NextRequest) {
 
     // Calculate total
     const totalAmount = cart.reduce(
-      (sum: number, item: CartItem) => sum + item.price * item.quantity,
+      (sum: number, item: CartItem) => sum + priceOf(item) * item.quantity,
       0,
     );
 
     // Build items
     const items: Record<string, PayDunyaItem> = {};
     cart.forEach((item: CartItem, index: number) => {
+      const itemPrice = priceOf(item);
       items[`item_${index}`] = {
         name: item.name || item.title || "Product",
         quantity: item.quantity,
-        unit_price: item.price,
-        total_price: item.price * item.quantity,
-        description: item.description || "",
+        unit_price: itemPrice,
+        total_price: itemPrice * item.quantity,
+        description: descriptionOf(item),
       };
     });
 

@@ -59,7 +59,7 @@ export default function NewOrderNotificationEmail({
           const itemName = isFormation
             ? (item as Formation).title
             : (item as Product).name;
-          const itemPrice = item.price;
+          const itemPrice = "priceTTC" in item ? (item as Product).priceTTC : (item as Formation).price;
           const quantity = item.quantity;
 
           return (

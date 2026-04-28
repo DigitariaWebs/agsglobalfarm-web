@@ -1,16 +1,22 @@
+export type ShopCategory = "engrais" | "phyto" | "semence" | "petit_materiel";
+
 export type Product = {
-  id: number;
+  id: string;
   name: string;
-  category: string;
-  price: number;
+  category: ShopCategory;
+  priceTTC: number;
   unit: string;
-  image: string;
-  description: string;
-  stock: number;
-  organic: boolean;
-  rating: number;
-  reviews: number;
-  isNewProduct?: boolean;
+  imageUrl: string;
+  cloudinaryPublicId?: string;
+  shortDescription: string;
+  longDescription: string;
+  isInStock: boolean;
+  stockQty: number;
+  brand?: string;
+  origin?: string;
+  usage?: string;
+  safety?: string;
+  dosage?: string;
   createdAt: Date;
   updatedAt: Date;
 };

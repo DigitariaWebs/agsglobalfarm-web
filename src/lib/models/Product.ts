@@ -1,43 +1,64 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+export type ShopCategory = "engrais" | "phyto" | "semence" | "petit_materiel";
+
 export interface IProduct extends Document {
-  id: number;
+  id: string;
   name: string;
-  category: string;
-  price: number;
+  category: ShopCategory;
+  priceTTC: number;
   unit: string;
-  image: string;
-  description: string;
-  stock: number;
-  organic: boolean;
-  rating: number;
-  reviews: number;
-  isNewProduct?: boolean;
+  imageUrl: string;
+  cloudinaryPublicId?: string;
+  shortDescription: string;
+  longDescription: string;
+  isInStock: boolean;
+  stockQty: number;
+  brand?: string;
+  origin?: string;
+  usage?: string;
+  safety?: string;
+  dosage?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
 const ProductSchema = new Schema<IProduct>(
   {
-    id: { type: Number, required: true, unique: true },
+    id: { type: String, required: true, unique: true, index: true },
     name: { type: String, required: true },
-    category: { type: String, required: true },
-    price: { type: Number, required: true },
+    category: {
+      type: String,
+      required: true,
+      enum: ["engrais", "phyto", "semence", "petit_materiel"],
+      index: true,
+    },
+    priceTTC: { type: Number, required: true },
     unit: { type: String, required: true },
-    image: { type: String, required: true },
-    description: { type: String, required: true },
-    stock: { type: Number, required: true },
-    organic: { type: Boolean, required: true },
-    rating: { type: Number, required: true },
-    reviews: { type: Number, required: true },
-    isNewProduct: { type: Boolean, default: false },
+    imageUrl: { type: String, required: true },
+    cloudinaryPublicId: { type: String },
+    shortDescription: { type: String, required: true },
+    longDescription: { type: String, required: true },
+    isInStock: { type: Boolean, required: true, default: true },
+    stockQty: { type: Number, required: true, default: 0 },
+    brand: { type: String },
+    origin: { type: String },
+    usage: { type: String },
+    safety: { type: String },
+    dosage: { type: String },
   },
   {
     timestamps: true,
   },
 );
 
-// Prevent re-compilation of model in development
+ProductSchema.index({
+  name: "text",
+  shortDescription: "text",
+  longDescription: "text",
+  brand: "text",
+});
+
 const Product =
   mongoose.models.Product || mongoose.model<IProduct>("Product", ProductSchema);
 
