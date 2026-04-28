@@ -238,6 +238,91 @@ export async function getPublicPresentialFormations(): Promise<
   }
 }
 
+export async function getOnlineFormationById(
+  formationId: string,
+): Promise<OnlineFormation | null> {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    const userId = session?.user?.id;
+    await connectToDatabase();
+
+    const formation = await OnlineFormationModel.findById(formationId)
+      .select("-quiz")
+      .lean();
+
+    if (!formation) return null;
+
+    const { owners, sections, ...rest } = formation as OnlineFormation;
+    const totalSections = sections?.length || 0;
+    const totalLessons =
+      sections?.reduce(
+        (sum: number, section: Section) =>
+          sum + (section.lessons?.length || 0),
+        0,
+      ) || 0;
+
+    const owned = userId ? isOwnerWithinAccessWindow(owners, userId) : false;
+    const ownerEntry =
+      userId && owners ? owners.find((o) => o.userId === userId) : undefined;
+    const accessExpiresAt = ownerEntry
+      ? new Date(
+          new Date(ownerEntry.purchaseDate).setMonth(
+            new Date(ownerEntry.purchaseDate).getMonth() + 3,
+          ),
+        )
+      : undefined;
+
+    return {
+      ...rest,
+      sections: owned ? sections : undefined,
+      owned,
+      accessExpiresAt,
+      stats: { totalSections, totalLessons },
+    } as OnlineFormation;
+  } catch (error) {
+    console.error("Failed to fetch online formation", error);
+    return null;
+  }
+}
+
+export async function getPresentialFormationById(
+  formationId: string,
+): Promise<PresentialFormation | null> {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    const userId = session?.user?.id;
+    await connectToDatabase();
+
+    const formation = (await PresentialFormationModel.findById(formationId)
+      .lean()) as PresentialFormation | null;
+
+    if (!formation) return null;
+
+    const { sessions, ...rest } = formation;
+    const isEnrolledInAnySession = userId
+      ? sessions?.some((s) => s.participants?.includes(userId)) || false
+      : false;
+
+    const transformedSessions = sessions?.map((s) => {
+      const { participants, ...sessionRest } = s;
+      return {
+        ...sessionRest,
+        reservedSpots: participants?.length || 0,
+        owned: userId ? participants?.includes(userId) || false : false,
+      };
+    });
+
+    return {
+      ...rest,
+      owned: isEnrolledInAnySession,
+      sessions: transformedSessions,
+    } as PresentialFormation;
+  } catch (error) {
+    console.error("Failed to fetch presential formation", error);
+    return null;
+  }
+}
+
 function isOwnerWithinAccessWindow(
   owners: { userId: string; purchaseDate: Date }[] | undefined,
   userId: string,
