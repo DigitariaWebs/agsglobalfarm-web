@@ -27,7 +27,8 @@ export async function POST(request: NextRequest) {
         ? (folderRaw as UploadFolder)
         : "ags/products";
 
-    if (folder === "ags/products") {
+    const adminOnlyFolders: UploadFolder[] = ["ags/products"];
+    if (adminOnlyFolders.includes(folder)) {
       const role = (session.user as { role?: string }).role;
       if (role !== "admin") {
         return NextResponse.json(
