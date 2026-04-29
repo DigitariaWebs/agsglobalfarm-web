@@ -235,6 +235,54 @@ export type Order = {
   updatedAt: Date;
 };
 
+export type JobContractType = "CDI" | "CDD" | "Saisonnier" | "Stage";
+export type JobStatus = "active" | "paused" | "closed" | "expired";
+export type JobApplicationStatus =
+  | "pending"
+  | "reviewed"
+  | "accepted"
+  | "rejected";
+
+export type Job = {
+  _id?: string;
+  title: string;
+  farmName: string;
+  location: string;
+  region: string;
+  department: string;
+  contractType: JobContractType;
+  salaryRange: string;
+  description: string;
+  requirements: string[];
+  applicantsCount: number;
+  status: JobStatus;
+  createdBy: string;
+  postedDate: Date | string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+};
+
+export type JobApplication = {
+  _id?: string;
+  jobId: string;
+  applicantId: string;
+  applicantName: string;
+  applicantEmail: string;
+  applicantPhone: string;
+  applicantAddress?: string;
+  region?: string;
+  department?: string;
+  education: string;
+  experience: string;
+  desiredPosition: string;
+  salaryExpectation: string;
+  coverLetter?: string;
+  status: JobApplicationStatus;
+  appliedDate: Date | string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+};
+
 export type ContactFormData = {
   name: string;
   email: string;
