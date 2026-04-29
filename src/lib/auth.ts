@@ -6,6 +6,7 @@ import { MongoClient } from "mongodb";
 import { sendEmail } from "./email";
 import PasswordResetEmail from "@/emails/PasswordResetEmail";
 import PasswordResetOtpEmail from "@/emails/PasswordResetOtpEmail";
+import EmailVerificationOtpEmail from "@/emails/EmailVerificationOtpEmail";
 
 const mongoClient = new MongoClient(
   process.env.MONGODB_URI || "mongodb://localhost:27017",
@@ -22,6 +23,7 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
     sendResetPassword: async ({ user, url }) => {
       const userRecord = user as {
         firstName?: string;
@@ -83,13 +85,24 @@ export const auth = betterAuth({
     emailOTP({
       otpLength: 6,
       expiresIn: 600,
+      sendVerificationOnSignUp: true,
       async sendVerificationOTP({ email, otp, type }) {
-        if (type !== "forget-password") return;
-        await sendEmail({
-          to: email,
-          subject: "Code de réinitialisation - AGS Globalfarm",
-          template: PasswordResetOtpEmail({ email, otp }),
-        });
+        if (type === "forget-password") {
+          await sendEmail({
+            to: email,
+            subject: "Code de réinitialisation - AGS Globalfarm",
+            template: PasswordResetOtpEmail({ email, otp }),
+          });
+          return;
+        }
+        if (type === "email-verification") {
+          await sendEmail({
+            to: email,
+            subject: "Vérification de votre email - AGS Globalfarm",
+            template: EmailVerificationOtpEmail({ email, otp }),
+          });
+          return;
+        }
       },
     }),
   ],
