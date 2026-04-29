@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
-import { bearer, emailOTP } from "better-auth/plugins";
+import { bearer, emailOTP, oneTimeToken } from "better-auth/plugins";
 import { expo } from "@better-auth/expo";
 import { MongoClient } from "mongodb";
 import { sendEmail } from "./email";
@@ -77,6 +77,9 @@ export const auth = betterAuth({
   plugins: [
     bearer(),
     expo(),
+    oneTimeToken({
+      expiresIn: 5,
+    }),
     emailOTP({
       otpLength: 6,
       expiresIn: 600,

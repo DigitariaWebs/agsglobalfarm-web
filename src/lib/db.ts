@@ -52,11 +52,29 @@ export async function getUserOrders(): Promise<Order[]> {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user?.id) return [];
     await connectToDatabase();
-    const orders = await OrderModel.find({ userId: session.user.id });
+    const orders = await OrderModel.find({ userId: session.user.id }).sort({
+      createdAt: -1,
+    });
     return orders.map((order: IOrder) => order.toObject() as Order);
   } catch (error) {
     console.error("Failed to fetch user orders", error);
     return [];
+  }
+}
+
+export async function getOrderById(orderId: string): Promise<Order | null> {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user?.id) return null;
+    await connectToDatabase();
+    const order = await OrderModel.findOne({
+      _id: orderId,
+      userId: session.user.id,
+    }).lean();
+    return order ? (order as unknown as Order) : null;
+  } catch (error) {
+    console.error("Failed to fetch order", error);
+    return null;
   }
 }
 
