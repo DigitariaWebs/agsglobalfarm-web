@@ -4,7 +4,7 @@ import {
 } from "@/lib/db";
 import FormationClientPage from "./FormationClientPage";
 
-const categories = ["Tout", "En ligne", "Présentiel"];
+const categories = ["Tout"];
 
 const benefits = [
   {

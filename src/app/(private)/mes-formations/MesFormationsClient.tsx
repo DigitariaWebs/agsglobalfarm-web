@@ -547,10 +547,10 @@ export default function MesFormationsClient({
 
       {/* Online Courses */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-6">Cours en Ligne</h2>
+        <h2 className="text-2xl font-semibold mb-6">Mes Cours</h2>
         {onlineCourses.length === 0 ? (
           <p className="text-gray-600">
-            Vous n&apos;avez pas encore acheté de cours en ligne.
+            Vous n&apos;avez pas encore acheté de cours.
           </p>
         ) : (
           <div className="space-y-6">
@@ -579,9 +579,6 @@ export default function MesFormationsClient({
                       </div>
                     </div>
                   </div>
-                  <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 shrink-0 ml-4">
-                    En ligne
-                  </span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   <div>
@@ -624,13 +621,9 @@ export default function MesFormationsClient({
 
       {/* Upcoming Presential */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-6">
-          Formations Présentielles à Venir
-        </h2>
+        <h2 className="text-2xl font-semibold mb-6">Formations à Venir</h2>
         {upcomingFormations.length === 0 ? (
-          <p className="text-gray-600">
-            Aucune formation présentielle à venir.
-          </p>
+          <p className="text-gray-600">Aucune formation à venir.</p>
         ) : (
           <div className="space-y-6">
             {upcomingFormations.map(({ formation, session }) => (
@@ -648,12 +641,10 @@ export default function MesFormationsClient({
       {/* Past Presential */}
       <section>
         <h2 className="text-2xl font-semibold mb-6">
-          Historique des Formations Présentielles
+          Historique des Formations
         </h2>
         {previousFormations.length === 0 ? (
-          <p className="text-gray-600">
-            Aucune formation présentielle terminée.
-          </p>
+          <p className="text-gray-600">Aucune formation terminée.</p>
         ) : (
           <div className="space-y-6">
             {previousFormations.map(({ formation, session }) => (

@@ -259,8 +259,7 @@ export default function FormationClientPage({
               </h1>
               <p className="text-white/90 text-lg mb-10 max-w-3xl mx-auto">
                 Développez vos compétences avec nos formations pratiques animées
-                par des experts. Des sessions présentielles au cours en ligne,
-                trouvez la formation qui vous convient.
+                par des experts. Trouvez la formation qui vous convient.
               </p>
 
               <div className="flex flex-wrap gap-4 justify-center">
@@ -391,36 +390,26 @@ export default function FormationClientPage({
             </p>
           </motion.div>
 
-          {/* Category Filter */}
-          <div className="flex flex-wrap gap-3 justify-center mb-12">
-            {categories.map((category) => {
-              const isOnline = category === "En ligne";
-              const isPresentiel = category === "Présentiel";
-              const isActive = activeCategory === category;
-
-              return (
-                <button
-                  key={category}
-                  onClick={() => setActiveCategory(category)}
-                  className={`px-6 py-3 rounded-full font-semibold transition-all ${
-                    isActive
-                      ? isOnline
-                        ? "bg-green-600 text-white shadow-lg scale-105"
-                        : isPresentiel
-                          ? "bg-blue-600 text-white shadow-lg scale-105"
-                          : "bg-orange-500 text-white shadow-lg scale-105"
-                      : isOnline
-                        ? "bg-green-50 text-green-700 hover:bg-green-100 border-2 border-green-200"
-                        : isPresentiel
-                          ? "bg-blue-50 text-blue-700 hover:bg-blue-100 border-2 border-blue-200"
-                          : "bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-200"
-                  }`}
-                >
-                  {category}
-                </button>
-              );
-            })}
-          </div>
+          {categories.length > 1 && (
+            <div className="flex flex-wrap gap-3 justify-center mb-12">
+              {categories.map((category) => {
+                const isActive = activeCategory === category;
+                return (
+                  <button
+                    key={category}
+                    onClick={() => setActiveCategory(category)}
+                    className={`px-6 py-3 rounded-full font-semibold transition-all ${
+                      isActive
+                        ? "bg-orange-500 text-white shadow-lg scale-105"
+                        : "bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-200"
+                    }`}
+                  >
+                    {category}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* Online Formations Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
@@ -445,9 +434,6 @@ export default function FormationClientPage({
                     />
                     <div className="absolute top-3 right-3 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold">
                       {program.price.toLocaleString("fr-FR")} FCFA
-                    </div>
-                    <div className="absolute top-3 left-3 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                      EN LIGNE
                     </div>
                   </div>
                   <div className="p-6 flex-1 flex flex-col">
@@ -542,9 +528,6 @@ export default function FormationClientPage({
                     />
                     <div className="absolute top-3 right-3 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold">
                       {program.price.toLocaleString("fr-FR")} FCFA
-                    </div>
-                    <div className="absolute top-3 left-3 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                      PRÉSENTIEL
                     </div>
                   </div>
                   <div className="p-6 flex-1 flex flex-col">

@@ -101,7 +101,7 @@ export default function NewOrderNotificationEmail({
       {/* Presential Formation Info */}
       {hasPresentialFormation && (
         <Section style={formationBox}>
-          <Text style={formationTitle}>🎓 Formation(s) Présentielle(s)</Text>
+          <Text style={formationTitle}>🎓 Formation(s)</Text>
           {order.items
             .filter((item) => "title" in item && item.type === "presentiel")
             .map((item, index) => {

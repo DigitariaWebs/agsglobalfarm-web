@@ -74,7 +74,7 @@ export default function OrderConfirmationEmail({
       {/* Presential Formation Info */}
       {hasPresentialFormation && (
         <Section style={infoBox}>
-          <Text style={infoTitle}>🎓 Formation Présentielle</Text>
+          <Text style={infoTitle}>🎓 Formation</Text>
           {order.items
             .filter((item) => "title" in item)
             .map((item, index) => {

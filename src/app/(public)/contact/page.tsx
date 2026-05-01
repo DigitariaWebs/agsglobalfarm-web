@@ -93,9 +93,9 @@ const faqs = [
       "Nos délais de livraison varient entre 24h et 72h selon votre localisation et la disponibilité des produits.",
   },
   {
-    question: "Proposez-vous des formations en ligne ?",
+    question: "Proposez-vous des formations ?",
     answer:
-      "Oui, nous proposons des formations hybrides avec des sessions en ligne et des pratiques sur terrain.",
+      "Oui, nous proposons des formations animées par des experts avec des contenus théoriques et des pratiques sur terrain.",
   },
   {
     question: "Comment puis-je devenir partenaire ?",
