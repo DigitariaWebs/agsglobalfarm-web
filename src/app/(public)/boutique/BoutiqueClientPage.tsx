@@ -3,10 +3,11 @@
 import { useState, useLayoutEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Sprout, Plus } from "lucide-react";
+import { Search, Sprout, Plus, Phone, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import type { Product } from "@/types";
+import { storeInfo } from "@/lib/store-info";
 
 interface CategoryOption {
   key: string;
@@ -122,6 +123,69 @@ export default function BoutiqueClientPage({
               fill={backgroundColor}
             ></path>
           </svg>
+        </div>
+      </section>
+
+      {/* Store Info Banner */}
+      <section className="relative -mt-12 z-20">
+        <div className="container mx-auto px-4">
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 md:p-8 grid gap-6 md:grid-cols-3 md:items-center">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
+                <MapPin className="w-5 h-5 text-emerald-700" />
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">
+                  Localisation
+                </p>
+                <a
+                  href={storeInfo.mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-sm text-gray-800 font-medium leading-snug hover:text-emerald-700"
+                >
+                  {storeInfo.addressLines.map((line) => (
+                    <span key={line} className="block">
+                      {line}
+                    </span>
+                  ))}
+                </a>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
+                <Phone className="w-5 h-5 text-emerald-700" />
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">
+                  Téléphone
+                </p>
+                <a
+                  href={`tel:${storeInfo.phoneTel}`}
+                  className="text-sm text-gray-800 font-medium hover:text-emerald-700"
+                >
+                  {storeInfo.phone}
+                </a>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {storeInfo.hours}
+                </p>
+              </div>
+            </div>
+
+            <div className="md:justify-self-end w-full md:w-auto">
+              <Button
+                asChild
+                size="lg"
+                className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+              >
+                <a href={`tel:${storeInfo.phoneTel}`}>
+                  <Phone className="w-4 h-4 mr-2" />
+                  Contacter le fournisseur
+                </a>
+              </Button>
+            </div>
+          </div>
         </div>
       </section>
 
