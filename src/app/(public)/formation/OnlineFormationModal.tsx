@@ -126,11 +126,9 @@ export default function OnlineFormationModal({
             <div className="text-center bg-white p-3 rounded-xl shadow-sm border border-green-200">
               <Award className="w-6 h-6 text-green-600 mx-auto mb-2" />
               <p className="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">
-                Prix
+                Accès
               </p>
-              <p className="font-bold text-green-600 text-base">
-                {program.price.toLocaleString()} FCFA
-              </p>
+              <p className="font-bold text-green-600 text-base">Gratuit</p>
             </div>
           </div>
 
@@ -239,7 +237,7 @@ export default function OnlineFormationModal({
                 onClick={handleEnroll}
                 className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors flex items-center gap-2"
               >
-                S&apos;inscrire Maintenant
+                Commencer la formation
                 <ArrowRight className="w-4 h-4" />
               </button>
             )}
@@ -248,7 +246,7 @@ export default function OnlineFormationModal({
                 disabled
                 className="px-4 py-2 bg-gray-300 text-gray-500 rounded-lg font-semibold cursor-not-allowed"
               >
-                Déjà acheté
+                Déjà inscrit
               </button>
             )}
           </div>

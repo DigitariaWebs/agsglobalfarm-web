@@ -21,7 +21,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import type { OnlineFormation, PresentialFormation } from "@/types";
 import OnlineFormationModal from "./OnlineFormationModal";
 import PresentialFormationModal from "./PresentialFormationModal";
@@ -72,7 +72,7 @@ export default function FormationClientPage({
 }: FormationClientPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { addToCart } = useCart();
+  const { user } = useAuth();
   const [activeCategory, setActiveCategory] = useState("Tout");
   const [onlineModalProgram, setOnlineModalProgram] =
     useState<OnlineFormation | null>(null);
@@ -146,16 +146,21 @@ export default function FormationClientPage({
     }
   }, [searchParams, onlineFormations, presentielFormations]);
 
-  const handleEnroll = (program: OnlineFormation | PresentialFormation) => {
-    // Check if user already owns this formation (for online formations)
+  const handleEnroll = async (
+    program: OnlineFormation | PresentialFormation,
+  ) => {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
     if (
       program.type === "online" &&
       (program as OnlineFormation & { owned?: boolean }).owned
     ) {
-      alert("Vous avez déjà acheté cette formation.");
+      router.push("/mes-formations");
       return;
     }
-    // Check if there's an open session for presentiel formations
+    let targetSessionId: number | undefined;
     if (program.type === "presentiel") {
       const openSessions = (program as PresentialFormation).sessions.filter(
         (session) => session.status === "open",
@@ -164,13 +169,33 @@ export default function FormationClientPage({
         alert("Aucune session ouverte pour cette formation.");
         return;
       }
-      // If multiple sessions, check if one is selected
       if (openSessions.length > 1 && !selectedSessionId) {
         alert("Veuillez sélectionner une session.");
         return;
       }
+      targetSessionId = selectedSessionId ?? openSessions[0].id;
     }
-    addToCart(program, selectedSessionId || undefined);
+
+    try {
+      const res = await fetch("/api/formations/enroll", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          formationId: program._id,
+          sessionId: targetSessionId,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(data?.error || "Erreur lors de l'inscription");
+        return;
+      }
+      router.push("/mes-formations");
+      router.refresh();
+    } catch (err) {
+      console.error("Enrollment failed", err);
+      alert("Erreur lors de l'inscription");
+    }
   };
 
   const openOnlineModal = (program: OnlineFormation) => {
@@ -433,7 +458,7 @@ export default function FormationClientPage({
                       className="object-cover"
                     />
                     <div className="absolute top-3 right-3 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold">
-                      {program.price.toLocaleString("fr-FR")} FCFA
+                      Gratuit
                     </div>
                   </div>
                   <div className="p-6 flex-1 flex flex-col">
@@ -497,7 +522,7 @@ export default function FormationClientPage({
                           openOnlineModal(program);
                         }}
                       >
-                        {program.owned ? "Déjà acheté" : "S'inscrire"}
+                        {program.owned ? "Déjà inscrit" : "S'inscrire"}
                         {program.owned ? null : (
                           <ArrowRight className="w-4 h-4 ml-1" />
                         )}
@@ -527,7 +552,7 @@ export default function FormationClientPage({
                       className="object-cover"
                     />
                     <div className="absolute top-3 right-3 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold">
-                      {program.price.toLocaleString("fr-FR")} FCFA
+                      Gratuit
                     </div>
                   </div>
                   <div className="p-6 flex-1 flex flex-col">
@@ -603,7 +628,7 @@ export default function FormationClientPage({
                         }}
                       >
                         {program.owned
-                          ? "Déjà acheté"
+                          ? "Déjà inscrit"
                           : !program.sessions.some(
                                 (session) => session.status === "open",
                               )

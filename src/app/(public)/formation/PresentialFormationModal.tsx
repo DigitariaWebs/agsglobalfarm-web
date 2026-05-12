@@ -151,11 +151,9 @@ export default function PresentialFormationModal({
             <div className="text-center bg-white p-3 rounded-xl shadow-sm border border-blue-200">
               <Award className="w-6 h-6 text-blue-600 mx-auto mb-2" />
               <p className="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">
-                Prix
+                Accès
               </p>
-              <p className="font-bold text-blue-600 text-base">
-                {program.price.toLocaleString()} FCFA
-              </p>
+              <p className="font-bold text-blue-600 text-base">Gratuit</p>
             </div>
           </div>
 
@@ -312,7 +310,7 @@ export default function PresentialFormationModal({
                 onClick={handleEnroll}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors flex items-center gap-2"
               >
-                S&apos;inscrire Maintenant
+                Réserver ma place
                 <ArrowRight className="w-4 h-4" />
               </button>
             ) : (

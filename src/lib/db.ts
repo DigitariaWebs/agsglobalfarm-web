@@ -280,21 +280,11 @@ export async function getOnlineFormationById(
       ) || 0;
 
     const owned = userId ? isOwnerWithinAccessWindow(owners, userId) : false;
-    const ownerEntry =
-      userId && owners ? owners.find((o) => o.userId === userId) : undefined;
-    const accessExpiresAt = ownerEntry
-      ? new Date(
-          new Date(ownerEntry.purchaseDate).setMonth(
-            new Date(ownerEntry.purchaseDate).getMonth() + 3,
-          ),
-        )
-      : undefined;
 
     return {
       ...rest,
       sections: owned ? sections : undefined,
       owned,
-      accessExpiresAt,
       stats: { totalSections, totalLessons },
     } as OnlineFormation;
   } catch (error) {
@@ -345,11 +335,7 @@ function isOwnerWithinAccessWindow(
   owners: { userId: string; purchaseDate: Date }[] | undefined,
   userId: string,
 ): boolean {
-  const entry = owners?.find((o) => o.userId === userId);
-  if (!entry) return false;
-  const threeMonthsLater = new Date(entry.purchaseDate);
-  threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
-  return new Date() <= threeMonthsLater;
+  return owners?.some((o) => o.userId === userId) ?? false;
 }
 
 export async function getOwnedFormations(): Promise<{
@@ -389,29 +375,12 @@ export async function getOwnedFormations(): Promise<{
       };
     }) as PresentialFormation[];
 
-    // Transform online formations to add stats and owned flag
-    const transformedOnline = onlineFormations
-      .filter((formation) =>
-        isOwnerWithinAccessWindow(
-          formation.owners as { userId: string; purchaseDate: Date }[],
-          userId,
-        ),
-      )
-      .map((formation) => {
-        const ownerEntry = (
-          formation.owners as { userId: string; purchaseDate: Date }[]
-        )?.find((o) => o.userId === userId);
-        const accessExpiresAt = ownerEntry
-          ? new Date(
-              new Date(ownerEntry.purchaseDate).setMonth(
-                new Date(ownerEntry.purchaseDate).getMonth() + 3,
-              ),
-            )
-          : undefined;
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { owners, ...rest } = formation;
-        return { ...rest, accessExpiresAt };
-      }) as OnlineFormation[];
+    // Transform online formations: include all matched (no time window)
+    const transformedOnline = onlineFormations.map((formation) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { owners, ...rest } = formation;
+      return rest;
+    }) as OnlineFormation[];
 
     return {
       presential: transformedPresential,
