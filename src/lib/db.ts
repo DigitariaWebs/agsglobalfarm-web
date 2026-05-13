@@ -177,6 +177,7 @@ export async function getPublicOnlineFormations(): Promise<OnlineFormation[]> {
 
         return {
           ...rest,
+          type: "online" as const,
           owned: isOwnerWithinAccessWindow(owners, userId),
           stats: {
             totalSections,
@@ -198,6 +199,7 @@ export async function getPublicOnlineFormations(): Promise<OnlineFormation[]> {
 
       return {
         ...rest,
+        type: "online" as const,
         stats: {
           totalSections,
           totalLessons,
@@ -244,6 +246,7 @@ export async function getPublicPresentialFormations(): Promise<
 
       return {
         ...rest,
+        type: "presentiel" as const,
         owned: isEnrolledInAnySession,
         sessions: transformedSessions,
       };
@@ -283,6 +286,7 @@ export async function getOnlineFormationById(
 
     return {
       ...rest,
+      type: "online" as const,
       sections: owned ? sections : undefined,
       owned,
       stats: { totalSections, totalLessons },
@@ -322,6 +326,7 @@ export async function getPresentialFormationById(
 
     return {
       ...rest,
+      type: "presentiel" as const,
       owned: isEnrolledInAnySession,
       sessions: transformedSessions,
     } as PresentialFormation;
@@ -365,6 +370,7 @@ export async function getOwnedFormations(): Promise<{
       const { sessions, ...rest } = formation;
       return {
         ...rest,
+        type: "presentiel" as const,
         sessions: sessions?.map((session: FormationSession) => {
           const { participants, ...sessionRest } = session;
           return {
@@ -379,7 +385,7 @@ export async function getOwnedFormations(): Promise<{
     const transformedOnline = onlineFormations.map((formation) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { owners, ...rest } = formation;
-      return rest;
+      return { ...rest, type: "online" as const };
     }) as OnlineFormation[];
 
     return {
